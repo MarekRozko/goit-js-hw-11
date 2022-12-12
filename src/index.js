@@ -25,12 +25,21 @@ searchForm.addEventListener('submit', event => {
   fetchImages().then(data => submitSearchForm(data));
 });
 
-function submitSearchForm(data) {
-  if (data.totalHits === 0) {
+async function submitSearchForm(data) {
+  try {
+    Number(page) === 1;
+    Notify.success(`Hooray! We found ${data.totalHits} images.`);
+    console.log(data.hits.length);
+    gallary.insertAdjacentHTML('beforeend', createImagesElements(data.hits));
+    page += 1;
+    observer.observe(document.querySelector('.gallery').lastElementChild);
+    lightbox.refresh();
+  } catch (error) {
+    data.totalHits === 0;
     Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
-    return;
+    return error;
   }
   if (
     Number(page) * data.hits.length >= data.totalHits &&
@@ -41,15 +50,6 @@ function submitSearchForm(data) {
     );
     observer.disconnect();
     return;
-  } else {
-    if (Number(page) === 1) {
-      Notify.success(`Hooray! We found ${data.totalHits} images.`);
-      console.log(data.hits.length);
-    }
-    gallary.insertAdjacentHTML('beforeend', createImagesElements(data.hits));
-    page += 1;
-    observer.observe(document.querySelector('.gallery').lastElementChild);
-    lightbox.refresh();
   }
 }
 async function fetchImages() {
